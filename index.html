@@ -398,27 +398,29 @@
             });
         }
 
-        // Tab switching
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active from all nav tabs
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-            
-            // Load posts for the specific tab
-            if (tabName !== 'home') {
-                loadPosts(tabName);
-            }
-        }
+// Tab switching (now accepts event param)
+function showTab(event, tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active from all nav tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab and mark nav button active
+    const targetTab = document.getElementById(tabName);
+    if (targetTab) targetTab.classList.add('active');
+    if (event && event.target) event.target.classList.add('active');
+    
+    // Load posts for the specific tab (except home)
+    if (tabName !== 'home') {
+        loadPosts(tabName);
+    }
+}
+
 
         // Format timestamp
         function formatTime(timestamp) {
@@ -433,84 +435,100 @@
             return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
         }
 
-        // Create post HTML
-        function createPostHTML(post, type) {
-            let mediaHTML = '';
-            let contentHTML = '';
-            
-            if (type === 'text') {
-                contentHTML = `<div class="post-text">${post.description || 'No content'}</div>`;
-            } else if (post.file) {
-                if (type === 'videos') {
-                    mediaHTML = `
-                        <div class="post-media">
-                            <video controls>
-                                <source src="${API_BASE}${post.file}" type="video/mp4">
-                                <source src="${API_BASE}${post.file}" type="video/webm">
-                                <source src="${API_BASE}${post.file}" type="video/ogg">
-                                Your browser does not support video.
-                            </video>
-                        </div>
-                    `;
-                } else if (type === 'images') {
-                    mediaHTML = `
-                        <div class="post-media">
-                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading="lazy">
-                        </div>
-                    `;
-                }
-                if (post.description) {
-                    contentHTML = `<div class="post-description">${post.description}</div>`;
-                }
-            }
+// Create post HTML (extension-aware)
+function createPostHTML(post, type) {
+    let mediaHTML = '';
+    let contentHTML = '';
 
-            return `
-                <div class="post">
-                    <div class="post-header">
-                        ${type !== 'text' ? `<div class="post-title">${post.caption || 'Untitled'}</div>` : ''}
-                        <div class="post-meta">
-                            <span class="post-name">${post.name}</span>
-                            <span class="post-id">No.${post.id}</span>
-                            <span class="post-time">${formatTime(post.id)}</span>
-                        </div>
-                    </div>
-                    <div class="post-content">
-                        ${contentHTML}
-                        ${mediaHTML}
-                    </div>
+    if (type === 'text') {
+        contentHTML = `<div class="post-text">${post.description || 'No content'}</div>`;
+    } else if (post.file) {
+        // normalize path for extension checks
+        const lowerFile = post.file.toLowerCase();
+
+        const videoExts = ['mp4','webm','ogg','mov','avi','mkv','flv','wmv'];
+        const imageExts = ['jpg','jpeg','png','gif','webp'];
+
+        // Build media HTML depending on extension + requested tab
+        if (type === 'videos' && videoExts.some(ext => lowerFile.endsWith('.' + ext))) {
+            // include single <video> with src (browser will pick container codec)
+            mediaHTML = `
+                <div class="post-media">
+                    <video controls preload="metadata">
+                        <source src="${API_BASE}${post.file}">
+                        Your browser does not support video.
+                    </video>
+                </div>
+            `;
+        } else if (type === 'images' && imageExts.some(ext => lowerFile.endsWith('.' + ext))) {
+            mediaHTML = `
+                <div class="post-media">
+                    <img src="${API_BASE}${post.file}" alt="${(post.caption||'Image')}" loading="lazy">
                 </div>
             `;
         }
 
-        // Load and display posts
-        async function loadPosts(type) {
-            try {
-                const response = await fetch(`${API_BASE}/api/posts`);
-                const posts = await response.json();
-                
-                let filteredPosts = [];
-                if (type === 'videos') {
-                    filteredPosts = [];
-                } else if (type === 'images') {
-                    filteredPosts = posts.filter(post => post.file !== null && post.file !== undefined);
-                } else if (type === 'text') {
-                    filteredPosts = posts.filter(post => (!post.file || post.file === null) && post.description);
-                }
-                
-                const container = document.getElementById(`${type}Posts`);
-                
-                if (filteredPosts.length === 0) {
-                    container.innerHTML = `<div class="no-posts">No ${type} posts yet. Be the first to share!</div>`;
-                } else {
-                    // Sort by newest first
-                    filteredPosts.sort((a, b) => b.id - a.id);
-                    container.innerHTML = filteredPosts.map(post => createPostHTML(post, type)).join('');
-                }
-            } catch (error) {
-                console.error('Error loading posts:', error);
-                document.getElementById(`${type}Posts`).innerHTML = '<div class="error-message">Error loading posts. Please try again.</div>';
-            }
+        if (post.description) {
+            contentHTML = `<div class="post-description">${post.description}</div>`;
         }
+    }
+
+    return `
+        <div class="post">
+            <div class="post-header">
+                ${type !== 'text' ? `<div class="post-title">${post.caption || 'Untitled'}</div>` : ''}
+                <div class="post-meta">
+                    <span class="post-name">${post.name}</span>
+                    <span class="post-id">No.${post.id}</span>
+                    <span class="post-time">${formatTime(post.id)}</span>
+                </div>
+            </div>
+            <div class="post-content">
+                ${contentHTML}
+                ${mediaHTML}
+            </div>
+        </div>
+    `;
+}
+
+
+        // Load and display posts
+// Load and display posts (filtered by file extension)
+async function loadPosts(type) {
+    try {
+        const response = await fetch(`${API_BASE}/api/posts`);
+        const posts = await response.json();
+
+        let filteredPosts = [];
+        if (type === 'videos') {
+            filteredPosts = posts.filter(post => {
+                if (!post.file) return false;
+                return !!post.file.toLowerCase().match(/\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv)$/);
+            });
+        } else if (type === 'images') {
+            filteredPosts = posts.filter(post => {
+                if (!post.file) return false;
+                return !!post.file.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+            });
+        } else if (type === 'text') {
+            filteredPosts = posts.filter(post => (!post.file || post.file === null) && post.description);
+        }
+
+        const container = document.getElementById(`${type}Posts`);
+
+        if (filteredPosts.length === 0) {
+            container.innerHTML = `<div class="no-posts">No ${type} posts yet. Be the first to share!</div>`;
+        } else {
+            // Sort by newest first
+            filteredPosts.sort((a, b) => b.id - a.id);
+            container.innerHTML = filteredPosts.map(post => createPostHTML(post, type)).join('');
+        }
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        document.getElementById(`${type}Posts`).innerHTML = '<div class="error-message">Error loading posts. Please try again.</div>';
+    }
+}
+
 
         // Show message
         function showMessage(message, isError = false) {
@@ -527,6 +545,35 @@
             }, 5000);
         }
 
+
+// Append a single post (so media appears immediately after upload)
+function appendPost(post) {
+    // Determine where to put it
+    const lowerFile = (post.file || '').toLowerCase();
+    const isVideo = lowerFile.match(/\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv)$/);
+    const isImage = lowerFile.match(/\.(jpg|jpeg|png|gif|webp)$/);
+
+    // Always prepend to text feed if it's a text post
+    if (!post.file) {
+        const textContainer = document.getElementById('textPosts');
+        if (textContainer) textContainer.innerHTML = createPostHTML(post, 'text') + textContainer.innerHTML;
+    }
+
+    // Prepend to images/videos containers as appropriate
+    if (isVideo) {
+        const vc = document.getElementById('videoPosts');
+        if (vc) vc.innerHTML = createPostHTML(post, 'videos') + vc.innerHTML;
+    } else if (isImage) {
+        const ic = document.getElementById('imagePosts');
+        if (ic) ic.innerHTML = createPostHTML(post, 'images') + ic.innerHTML;
+    }
+}
+
+
+
+
+
+        
         // Handle form submissions
         async function handleFormSubmit(formId, type) {
             const form = document.getElementById(formId);
@@ -549,18 +596,31 @@
                     
                     const result = await response.json();
                     
-                    if (result.success) {
-                        showMessage('Post created successfully!');
-                        // Reset form but keep name
-                        const savedName = loadSavedName();
-                        form.reset();
-                        if (savedName) {
-                            form.querySelector('[name="name"]').value = savedName;
-                        }
-                        loadPosts(type);
-                    } else {
-                        showMessage('Error creating post. Please try again.', true);
-                    }
+if (result.success) {
+    showMessage('Post created successfully!');
+    // Reset form but keep name
+    const savedName = loadSavedName();
+    form.reset();
+    if (savedName) {
+        form.querySelector('[name="name"]').value = savedName;
+    }
+
+    // Immediately append the new post into relevant containers
+    // "result.post" is what your backend currently returns (you push the created post there)
+    if (result.post) {
+        appendPost(result.post);
+    }
+
+    // Also refresh the currently-open tab (in case user expects full refresh)
+    // Find active tab id
+    const activeTab = document.querySelector('.tab-content.active');
+    if (activeTab && activeTab.id && activeTab.id !== 'home') {
+        loadPosts(activeTab.id);
+    }
+} else {
+    showMessage('Error creating post. Please try again.', true);
+}
+
                 } catch (error) {
                     console.error('Error:', error);
                     showMessage('Network error. Please try again.', true);
