@@ -1,28 +1,4 @@
-// Create post HTML
-        function createPostHTML(post, type) {
-            let mediaHTML = '';
-            let contentHTML = '';
-            
-            console.log(`Creating HTML for post ${post.id}, type: ${type}, file: ${post.file}`);
-            
-            if (type === 'text') {
-                contentHTML = `<div class="post-text">${post.description || 'No content'}</div>`;
-            } else if (post.file) {
-                if (type === 'videos') {
-                    mediaHTML = `
-                        <div class="post-media">
-                            <video controls>
-                                <source src="${API_BASE}${post.file}" type="video/mp4">
-                                <source src="${API_BASE}${post.file}" type="video/webm">
-                                <source src="${API_BASE}${post.file}" type="video/ogg">
-                                Your browser does not support video.
-                            </video>
-                        </div>
-                    `;
-                } else if (type === 'images') {
-                    mediaHTML = `
-                        <div class="post-media">
-                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -264,15 +240,11 @@
 <body>
     <div class="header">
         <div class="ascii-title">
- ____     __                           _ _ _            _                
-/\  _`\  /\ \                         (_) | |          ( )               
-\ \ \L\ \\ \ \         __      ___     _ | | ___  _   _ |/  __            
- \ \ ,  / \ \ \  __  /'__`\  /' _ `\  _(_) | |/ __`\/ _ ` | / __`\         
-  \ \ \\ \ \ \ \L\ \/\ \L\.\_/\ \/\ \/\ \ | |\ \L\ \ (_) |( \L\ \        
-   \ \_\ \_\\ \____/\ \__/.\_\ \_\ \_\ \___|\_\ \____/\___/ \ \____/       
-    \/_/\/ / \/___/  \/__/\/_/\/_/\/_/\/__/ __/\/___/ \/__/  \/___/        
-                                         /\_\                              
-                                         \/_/                              
+ ____      *     *___  *      *____ ____  *     *  *     *     _____ ____  *     *___  ____ _____
+/  __\  /\/ \   /  * \/ \  /|/  *_// ___\/ \ |\/ \/ \   / \   /  **//  **\/ \   /  * \/   *Y  __/
+|  \/| / /| |   | / \|| |\ |||  \  |    \| | //| || |   | |   |  \  |  \/|| |   | / \||  / |  \  
+|    // / | |_/\| |-||| | \|||  /_ \___ || \// | || |_/\| |_/\|  /_ |  __/| |_/\| |-|||  \_|  /_ 
+\_/\_\\/  \____/\_/ \|\_/  \|\____\\____/\__/  \_/\____/\____/\____\\_/   \____/\_/ \|\____|____\
         </div>
         <h1>Welcome to r/lanesvilleplace - Your School's Digital Scrapbook</h1>
     </div>
@@ -390,6 +362,42 @@
 
         let allPosts = [];
 
+        // Save and load names from localStorage
+        function saveName(name) {
+            localStorage.setItem('userName', name);
+        }
+        
+        function loadSavedName() {
+            return localStorage.getItem('userName') || '';
+        }
+        
+        function populateNameFields() {
+            const savedName = loadSavedName();
+            if (savedName) {
+                document.getElementById('videoName').value = savedName;
+                document.getElementById('imageName').value = savedName;
+                document.getElementById('textName').value = savedName;
+            }
+        }
+        
+        // Add event listeners to save names when they change
+        function setupNameSaving() {
+            ['videoName', 'imageName', 'textName'].forEach(id => {
+                const field = document.getElementById(id);
+                field.addEventListener('input', (e) => {
+                    if (e.target.value.trim()) {
+                        saveName(e.target.value);
+                        // Update other name fields
+                        ['videoName', 'imageName', 'textName'].forEach(otherId => {
+                            if (otherId !== id) {
+                                document.getElementById(otherId).value = e.target.value;
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
         // Tab switching
         function showTab(tabName) {
             // Hide all tabs
@@ -438,6 +446,8 @@
                         <div class="post-media">
                             <video controls>
                                 <source src="${API_BASE}${post.file}" type="video/mp4">
+                                <source src="${API_BASE}${post.file}" type="video/webm">
+                                <source src="${API_BASE}${post.file}" type="video/ogg">
                                 Your browser does not support video.
                             </video>
                         </div>
@@ -445,7 +455,7 @@
                 } else if (type === 'images') {
                     mediaHTML = `
                         <div class="post-media">
-                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjNlbSI+SW1hZ2UgTm90IEZvdW5kPC90ZXh0Pjwvc3ZnPg=='; console.error('Image failed to load:', '${API_BASE}${post.file}');">
+                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading="lazy">
                         </div>
                     `;
                 }
@@ -475,63 +485,27 @@
         // Load and display posts
         async function loadPosts(type) {
             try {
-                console.log(`=== Loading posts for ${type} ===`);
                 const response = await fetch(`${API_BASE}/api/posts`);
-                console.log('Response status:', response.status);
-                
                 const posts = await response.json();
-                console.log('Raw posts from API:', JSON.stringify(posts, null, 2));
                 
                 let filteredPosts = [];
-                
-                console.log(`Filtering for type: ${type}`);
-                posts.forEach((post, index) => {
-                    console.log(`Post ${index}:`, {
-                        id: post.id,
-                        hasFile: !!post.file,
-                        file: post.file,
-                        hasDescription: !!post.description,
-                        description: post.description
-                    });
-                });
-                
                 if (type === 'videos') {
                     filteredPosts = [];
-                    console.log('Videos: showing none for now');
                 } else if (type === 'images') {
-                    filteredPosts = posts.filter(post => {
-                        const hasFile = post.file !== null && post.file !== undefined && post.file !== '';
-                        console.log(`Post ${post.id}: hasFile = ${hasFile} (file: "${post.file}")`);
-                        return hasFile;
-                    });
+                    filteredPosts = posts.filter(post => post.file !== null && post.file !== undefined);
                 } else if (type === 'text') {
-                    filteredPosts = posts.filter(post => {
-                        const isTextPost = (!post.file || post.file === null) && post.description;
-                        console.log(`Post ${post.id}: isTextPost = ${isTextPost}`);
-                        return isTextPost;
-                    });
+                    filteredPosts = posts.filter(post => (!post.file || post.file === null) && post.description);
                 }
                 
-                console.log(`Final filtered posts for ${type}:`, filteredPosts);
-                console.log(`Number of filtered posts: ${filteredPosts.length}`);
-                
                 const container = document.getElementById(`${type}Posts`);
-                console.log('Container element:', container);
                 
                 if (filteredPosts.length === 0) {
-                    const message = `<div class="no-posts">No ${type} posts yet. Be the first to share!</div>`;
-                    console.log('Setting no posts message:', message);
-                    container.innerHTML = message;
+                    container.innerHTML = `<div class="no-posts">No ${type} posts yet. Be the first to share!</div>`;
                 } else {
                     // Sort by newest first
                     filteredPosts.sort((a, b) => b.id - a.id);
-                    const html = filteredPosts.map(post => createPostHTML(post, type)).join('');
-                    console.log('Generated HTML length:', html.length);
-                    container.innerHTML = html;
+                    container.innerHTML = filteredPosts.map(post => createPostHTML(post, type)).join('');
                 }
-                
-                console.log(`=== Finished loading ${type} posts ===`);
-                
             } catch (error) {
                 console.error('Error loading posts:', error);
                 document.getElementById(`${type}Posts`).innerHTML = '<div class="error-message">Error loading posts. Please try again.</div>';
@@ -591,42 +565,6 @@
                     console.error('Error:', error);
                     showMessage('Network error. Please try again.', true);
                 }
-            });
-        }
-
-        // Save and load names from localStorage
-        function saveName(name) {
-            localStorage.setItem('userName', name);
-        }
-        
-        function loadSavedName() {
-            return localStorage.getItem('userName') || '';
-        }
-        
-        function populateNameFields() {
-            const savedName = loadSavedName();
-            if (savedName) {
-                document.getElementById('videoName').value = savedName;
-                document.getElementById('imageName').value = savedName;
-                document.getElementById('textName').value = savedName;
-            }
-        }
-        
-        // Add event listeners to save names when they change
-        function setupNameSaving() {
-            ['videoName', 'imageName', 'textName'].forEach(id => {
-                const field = document.getElementById(id);
-                field.addEventListener('input', (e) => {
-                    if (e.target.value.trim()) {
-                        saveName(e.target.value);
-                        // Update other name fields
-                        ['videoName', 'imageName', 'textName'].forEach(otherId => {
-                            if (otherId !== id) {
-                                document.getElementById(otherId).value = e.target.value;
-                            }
-                        });
-                    }
-                });
             });
         }
 
