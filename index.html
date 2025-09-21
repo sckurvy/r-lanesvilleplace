@@ -1,192 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>r/lanesvilleplace</title>
-<style>
-  body {
-    background-color: #f0f0f0;
-    font-family: monospace;
-    margin: 0;
-    padding: 0;
-  }
-  header {
-    background: #ddd;
-    padding: 10px;
-    text-align: center;
-    font-size: 18px;
-    color: #4B0082; /* purple-ish header text */
-    white-space: pre;
-  }
-  nav {
-    background: #bbb;
-    display: flex;
-    justify-content: center;
-    padding: 5px;
-  }
-  nav button {
-    margin: 0 5px;
-    padding: 5px 10px;
-    background: #eee;
-    border: 1px solid #4B0082; /* purple border */
-    cursor: pointer;
-  }
-  section {
-    display: none;
-    padding: 15px;
-  }
-  section.active {
-    display: block;
-  }
-  .post-form {
-    border: 2px solid #800080; /* purple border */
-    background: #fff;
-    padding: 10px;
-    margin-bottom: 15px;
-  }
-  .post {
-    border: 2px solid #800080; /* purple border */
-    background: #fff;
-    margin: 10px 0;
-    padding: 10px;
-  }
-  .caption {
-    font-weight: bold;
-  }
-  .description {
-    font-style: italic;
-    color: #444;
-  }
-  .media {
-    margin-top: 5px;
-    max-width: 100%;
-  }
-  .board {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .board .post {
-    width: 300px;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>r/lanesvilleplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #FFFFEE;
+            color: #000;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .header {
+            background-color: #0F0C5D;
+            color: #FFFFEE;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 2px solid #000;
+        }
+
+        .ascii-title {
+            font-family: monospace;
+            font-size: 10px;
+            white-space: pre;
+            color: #FFFFEE;
+            text-shadow: 1px 1px 0px #000;
+            margin-bottom: 10px;
+        }
+
+        .nav-tabs {
+            background-color: #D6DAF0;
+            border-bottom: 1px solid #B7C5D9;
+            padding: 5px 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav-tab {
+            background-color: #D6DAF0;
+            border: 1px solid #B7C5D9;
+            padding: 5px 15px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #34345C;
+            border-radius: 3px 3px 0 0;
+            font-weight: bold;
+        }
+
+        .nav-tab:hover {
+            background-color: #FFFFEE;
+        }
+
+        .nav-tab.active {
+            background-color: #FFFFEE;
+            border-bottom: 1px solid #FFFFEE;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .home-content {
+            background-color: #FFFFEE;
+            border: 1px solid #B7C5D9;
+            padding: 20px;
+            margin: 10px 0;
+        }
+
+        .home-content h2 {
+            color: #AF0A0F;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .home-content p {
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .post-form {
+            background-color: #D6DAF0;
+            border: 1px solid #B7C5D9;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #34345C;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #B7C5D9;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: #FFFFEE;
+            border: 1px solid #B7C5D9;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #34345C;
+        }
+
+        .submit-btn:hover {
+            background-color: #D6DAF0;
+        }
+
+        .posts-container {
+            margin-top: 20px;
+        }
+
+        .post {
+            background-color: #FFFFEE;
+            border: 1px solid #D9BFB7;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-left: 3px solid #D6DAF0;
+        }
+
+        .post-header {
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #D9BFB7;
+        }
+
+        .post-title {
+            font-weight: bold;
+            color: #AF0A0F;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .post-meta {
+            color: #789922;
+            font-size: 12px;
+        }
+
+        .post-name {
+            color: #117743;
+            font-weight: bold;
+        }
+
+        .post-id {
+            color: #000;
+        }
+
+        .post-time {
+            color: #789922;
+        }
+
+        .post-content {
+            margin-top: 10px;
+        }
+
+        .post-description {
+            margin-bottom: 10px;
+            color: #000;
+        }
+
+        .post-media {
+            margin-top: 10px;
+        }
+
+        .post-media img, .post-media video {
+            max-width: 250px;
+            max-height: 250px;
+            border: 1px solid #D9BFB7;
+        }
+
+        .post-text {
+            background-color: #F0F0F0;
+            border: 1px solid #D9BFB7;
+            padding: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .no-posts {
+            text-align: center;
+            color: #789922;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .error-message {
+            background-color: #FFE4E1;
+            border: 1px solid #FF6B6B;
+            color: #D63031;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+
+        .success-message {
+            background-color: #E8F5E8;
+            border: 1px solid #4CAF50;
+            color: #2E7D32;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <div class="ascii-title">
+ ____     __                           _ _ _            _                
+/\  _`\  /\ \                         (_) | |          ( )               
+\ \ \L\ \\ \ \         __      ___     _ | | ___  _   _ |/  __            
+ \ \ ,  / \ \ \  __  /'__`\  /' _ `\  _(_) | |/ __`\/ _ ` | / __`\         
+  \ \ \\ \ \ \ \L\ \/\ \L\.\_/\ \/\ \/\ \ | |\ \L\ \ (_) |( \L\ \        
+   \ \_\ \_\\ \____/\ \__/.\_\ \_\ \_\ \___|\_\ \____/\___/ \ \____/       
+    \/_/\/ / \/___/  \/__/\/_/\/_/\/_/\/__/ __/\/___/ \/__/  \/___/        
+                                         /\_\                              
+                                         \/_/                              
+        </div>
+        <h1>Welcome to r/lanesvilleplace - Your School's Digital Scrapbook</h1>
+    </div>
 
-<header>
-                       ,--,                                                                                                                                                 
-                    ,---.'|                                                                                             ,-.----.                                            
-                ,--,|   | :                                                                    ,--,    ,--,             \    /  \    ,--,                                   
-               / .`|:   : |                                                           ,--,   ,--.'|  ,--.'|             |   :    \ ,--.'|                                   
-  __  ,-.     /' / ;|   ' :                     ,---,                               ,--.'|   |  | :  |  | :             |   |  .\ :|  | :                                   
-,' ,'/ /|    /  / .';   ; '                 ,-+-. /  |            .--.--.      .---.|  |,    :  : '  :  : '             .   :  |: |:  : '                                   
-'  | |' |   /  / ./ '   | |__   ,--.--.    ,--.'|'   |   ,---.   /  /    '   /.  ./|`--'_    |  ' |  |  ' |      ,---.  |   |   \ :|  ' |     ,--.--.     ,---.     ,---.   
-|  |   ,'  / ./  /  |   | :.'| /       \  |   |  ,"' |  /     \ |  :  /`./ .-' . ' |,' ,'|   '  | |  '  | |     /     \ |   : .   /'  | |    /       \   /     \   /     \  
-'  :  /   /  /  /   '   :    ;.--.  .-. | |   | /  | | /    /  ||  :  ;_  /___/ \: |'  | |   |  | :  |  | :    /    /  |;   | |`-' |  | :   .--.  .-. | /    / '  /    /  | 
-|  | '   /  /  /    |   |  ./  \__\/: . . |   | |  | |.    ' / | \  \    `.   \  ' .|  | :   '  : |__'  : |__ .    ' / ||   | ;    '  : |__  \__\/: . ..    ' /  .    ' / | 
-;  : |  ;  /  /     ;   : ;    ," .--.; | |   | |  |/ '   ;   /|  `----.   \   \   ''  : |__ |  | '.'|  | '.'|'   ;   /|:   ' |    |  | '.'| ," .--.; |'   ; :__ '   ;   /| 
-|  , ;./__;  /      |   ,/    /  /  ,.  | |   | |--'  '   |  / | /  /`--'  /\   \   |  | '.'|;  :    ;  :    ;'   |  / |:   : :    ;  :    ;/  /  ,.  |'   | '.'|'   |  / | 
- ---' |   : /       '---'    ;  :   .'   \|   |/      |   :    |'--'.     /  \   \ |;  :    ;|  ,   /|  ,   / |   :    ||   | :    |  ,   /;  :   .'   \   :    :|   :    | 
-      ;   |/                 |  ,     .-./'---'        \   \  /   `--'---'    '---" |  ,   /  ---`-'  ---`-'   \   \  / `---'.|     ---`-' |  ,     .-./\   \  /  \   \  /  
-      `---'                   `--`---'                  `----'                       ---`-'                     `----'    `---`             `--`---'     `----'    `----'   
-                                                                                                                                                                            
-</header>
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="showTab('home')">Home</div>
+        <div class="nav-tab" onclick="showTab('videos')">Videos</div>
+        <div class="nav-tab" onclick="showTab('images')">Images</div>
+        <div class="nav-tab" onclick="showTab('text')">Text Posts</div>
+    </div>
 
-<nav>
-  <button onclick="showTab('videos')">Videos</button>
-  <button onclick="showTab('texts')">Texts</button>
-  <button onclick="showTab('images')">Images</button>
-</nav>
+    <div class="container">
+        <!-- Home Tab -->
+        <div id="home" class="tab-content active">
+            <div class="home-content">
+                <h2>Welcome to r/lanesvilleplace!</h2>
+                
+                <p><strong>How to use:</strong></p>
+                <p>• Choose your content type: Videos, Images, or Text posts</p>
+                <p>• Fill in your real name, a title, and description</p>
+                <p>• Upload your content or write your text</p>
+                
+                <p><strong>What can you share?</strong></p>
+                <p>• <strong>Videos:</strong> School events, funny stuff, anything else just not freaky stuff please people.</p>
+                <p>• <strong>Images:</strong> Photos from classes, sports, friends,etc. </p>
+                <p>• <strong>Text:</strong> Stories, memories, thoughts, jokes, or anything you want to remember</p>
+                
+                <p><strong>Rules:</strong></p>
+                <p>• Use your real name - this is for the school community</p>
+                <p>• Keep content mostly appropriate</p>
+            </div>
+        </div>
 
-<section id="videos" class="active">
-  <h2>Videos</h2>
-  <form class="post-form" onsubmit="return submitPost(event, 'videos')">
-    <input type="text" name="name" placeholder="First Name Here" required><br>
-    <input type="text" name="caption" placeholder="Caption" required><br>
-    <input type="text" name="description" placeholder="Short description"><br>
-    <input type="file" name="file" accept="video/*"><br>
-    <button type="submit">Post</button>
-  </form>
-  <div class="board" id="videos-feed"></div>
-</section>
+        <!-- Videos Tab -->
+        <div id="videos" class="tab-content">
+            <div class="post-form">
+                <h3 style="margin-bottom: 15px; color: #AF0A0F;">Share a Video</h3>
+                <form id="videoForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="videoName">Your Name *</label>
+                        <input type="text" id="videoName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="videoTitle">Title *</label>
+                        <input type="text" id="videoTitle" name="caption" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="videoDescription">Description</label>
+                        <textarea id="videoDescription" name="description" placeholder="Tell us about this video..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="videoFile">Video File *</label>
+                        <input type="file" id="videoFile" name="file" accept="video/*" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Post Video</button>
+                </form>
+            </div>
+            <div id="videoPosts" class="posts-container"></div>
+        </div>
 
-<section id="texts">
-  <h2>Texts</h2>
-  <form class="post-form" onsubmit="return submitPost(event, 'texts')">
-    <input type="text" name="name" placeholder="First Name Here" required><br>
-    <input type="text" name="caption" placeholder="Caption" required><br>
-    <input type="text" name="description" placeholder="Short description"><br>
-    <button type="submit">Post</button>
-  </form>
-  <div class="board" id="texts-feed"></div>
-</section>
+        <!-- Images Tab -->
+        <div id="images" class="tab-content">
+            <div class="post-form">
+                <h3 style="margin-bottom: 15px; color: #AF0A0F;">Share an Image</h3>
+                <form id="imageForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="imageName">Your  Name *</label>
+                        <input type="text" id="imageName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageTitle">Title *</label>
+                        <input type="text" id="imageTitle" name="caption" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageDescription">Description</label>
+                        <textarea id="imageDescription" name="description" placeholder="What's the story behind this image?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageFile">Image File (including GIFs) *</label>
+                        <input type="file" id="imageFile" name="file" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Post Image</button>
+                </form>
+            </div>
+            <div id="imagePosts" class="posts-container"></div>
+        </div>
 
-<section id="images">
-  <h2>Images</h2>
-  <form class="post-form" onsubmit="return submitPost(event, 'images')">
-    <input type="text" name="name" placeholder="First Name Here" required><br>
-    <input type="text" name="caption" placeholder="Caption" required><br>
-    <input type="text" name="description" placeholder="Short description"><br>
-    <input type="file" name="file" accept="image/*,image/gif"><br>
-    <button type="submit">Post</button>
-  </form>
-  <div class="board" id="images-feed"></div>
-</section>
+        <!-- Text Tab -->
+        <div id="text" class="tab-content">
+            <div class="post-form">
+                <h3 style="margin-bottom: 15px; color: #AF0A0F;">Share a Text Post</h3>
+                <form id="textForm">
+                    <div class="form-group">
+                        <label for="textName">Your  Name *</label>
+                        <input type="text" id="textName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="textTitle">Title *</label>
+                        <input type="text" id="textTitle" name="caption" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="textContent">Your Text *</label>
+                        <textarea id="textContent" name="description" placeholder="Share your story, memory, or thoughts..." required style="height: 120px;"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Post Text</button>
+                </form>
+            </div>
+            <div id="textPosts" class="posts-container"></div>
+        </div>
+    </div>
 
-<script>
-const backend = "https://r-lanesvilleplace-backend.onrender.com";
+    <script>
+        const API_BASE = 'https://r-lanesvilleplace-backend.onrender.com';
 
-function showTab(tab) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-  loadPosts();
-}
+        let allPosts = [];
 
-async function loadPosts() {
-  const res = await fetch(`${backend}/api/posts`);
-  const posts = await res.json();
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load posts for the specific tab
+            if (tabName !== 'home') {
+                loadPosts(tabName);
+            }
+        }
 
-  ["videos","texts","images"].forEach(tab => {
-    const feed = document.getElementById(tab + "-feed");
-    if (!feed) return;
-    feed.innerHTML = "";
+        // Format timestamp
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
 
-    posts.forEach(p => {
-      let type = "texts";
-      if (p.file && p.file.match(/\.(mp4|webm|mov)$/)) type = "videos";
-      else if (p.file && p.file.match(/\.(jpg|jpeg|png|gif)$/)) type = "images";
-      if (type !== tab) return;
+        // Create post HTML
+        function createPostHTML(post, type) {
+            let mediaHTML = '';
+            let contentHTML = '';
+            
+            if (type === 'text') {
+                contentHTML = `<div class="post-text">${post.description || 'No content'}</div>`;
+            } else if (post.file) {
+                if (type === 'videos') {
+                    mediaHTML = `
+                        <div class="post-media">
+                            <video controls>
+                                <source src="${API_BASE}${post.file}" type="video/mp4">
+                                Your browser does not support video.
+                            </video>
+                        </div>
+                    `;
+                } else if (type === 'images') {
+                    mediaHTML = `
+                        <div class="post-media">
+                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading="lazy">
+                        </div>
+                    `;
+                }
+                if (post.description) {
+                    contentHTML = `<div class="post-description">${post.description}</div>`;
+                }
+            }
 
-      const div = document.createElement("div");
-      div.className = "post";
-      div.innerHTML = `
-        <div class="caption">${p.caption}</div>
-        <div class="description">${p.description}</div>
-        <div>Posted by: ${p.name}</div>
-      `;
-      if (p.file) {
-        if (type === "videos") div.innerHTML += `<video class="media" controls src="${backend}${p.file}"></video>`;
-        else if (type === "images") div.innerHTML += `<img class="media" src="${backend}${p.file}" alt="image post">`;
-      }
-      feed.prepend(div);
-    });
-  });
-}
+            return `
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-title">${post.caption || 'Untitled'}</div>
+                        <div class="post-meta">
+                            <span class="post-name">${post.name}</span>
+                            <span class="post-id">No.${post.id}</span>
+                            <span class="post-time">${formatTime(post.id)}</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        ${contentHTML}
+                        ${mediaHTML}
+                    </div>
+                </div>
+            `;
+        }
 
-async function submitPost(e, tab) {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
-  const res = await fetch(`${backend}/api/upload`, { method:"POST", body:formData });
-  const data = await res.json();
-  if (data.success) {
-    form.reset();
-    loadPosts();
-  } else alert("Error posting.");
-}
+        // Load and display posts
+        async function loadPosts(type) {
+            try {
+                const response = await fetch(`${API_BASE}/api/posts`);
+                const posts = await response.json();
+                
+                let filteredPosts = [];
+                if (type === 'videos') {
+                    filteredPosts = posts.filter(post => post.file && post.file.match(/\.(mp4|webm|ogg|avi|mov)$/i));
+                } else if (type === 'images') {
+                    filteredPosts = posts.filter(post => post.file && post.file.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i));
+                } else if (type === 'text') {
+                    filteredPosts = posts.filter(post => !post.file && post.description);
+                }
+                
+                const container = document.getElementById(`${type}Posts`);
+                
+                if (filteredPosts.length === 0) {
+                    container.innerHTML = '<div class="no-posts">No posts yet. Be the first to share!</div>';
+                } else {
+                    // Sort by newest first
+                    filteredPosts.sort((a, b) => b.id - a.id);
+                    container.innerHTML = filteredPosts.map(post => createPostHTML(post, type)).join('');
+                }
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById(`${type}Posts`).innerHTML = '<div class="error-message">Error loading posts. Please try again.</div>';
+            }
+        }
 
-loadPosts();
-</script>
+        // Show message
+        function showMessage(message, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isError ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+            
+            const activeTab = document.querySelector('.tab-content.active');
+            const form = activeTab.querySelector('.post-form');
+            form.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
 
+        // Handle form submissions
+        async function handleFormSubmit(formId, type) {
+            const form = document.getElementById(formId);
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                
+                try {
+                    const response = await fetch(`${API_BASE}/api/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showMessage('Post created successfully!');
+                        form.reset();
+                        loadPosts(type);
+                    } else {
+                        showMessage('Error creating post. Please try again.', true);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showMessage('Network error. Please try again.', true);
+                }
+            });
+        }
+
+        // Initialize form handlers
+        document.addEventListener('DOMContentLoaded', () => {
+            handleFormSubmit('videoForm', 'videos');
+            handleFormSubmit('imageForm', 'images');
+            handleFormSubmit('textForm', 'text');
+        });
+    </script>
 </body>
 </html>
