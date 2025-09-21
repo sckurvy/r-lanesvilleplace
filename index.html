@@ -456,36 +456,15 @@
                 const posts = await response.json();
                 console.log('All posts received:', posts);
                 
-                // Log each post's file info
-                posts.forEach(post => {
-                    if (post.file) {
-                        console.log(`Post ${post.id} has file: ${post.file}`);
-                    } else {
-                        console.log(`Post ${post.id} has no file, description: ${post.description ? 'yes' : 'no'}`);
-                    }
-                });
-                
                 let filteredPosts = [];
                 if (type === 'videos') {
-                    filteredPosts = posts.filter(post => {
-                        if (!post.file) return false;
-                        const isVideo = post.file.match(/\.(mp4|webm|ogg|avi|mov)$/i);
-                        console.log(`Post ${post.id}: ${post.file} is video: ${!!isVideo}`);
-                        return isVideo;
-                    });
+                    // For videos, we'll need to check the original mimetype or just show all file posts for now
+                    filteredPosts = posts.filter(post => post.file);
                 } else if (type === 'images') {
-                    filteredPosts = posts.filter(post => {
-                        if (!post.file) return false;
-                        const isImage = post.file.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i);
-                        console.log(`Post ${post.id}: ${post.file} is image: ${!!isImage}`);
-                        return isImage;
-                    });
+                    // For images, show all file posts since we can't distinguish by extension
+                    filteredPosts = posts.filter(post => post.file);
                 } else if (type === 'text') {
-                    filteredPosts = posts.filter(post => {
-                        const isText = !post.file && post.description;
-                        console.log(`Post ${post.id}: is text post: ${isText}`);
-                        return isText;
-                    });
+                    filteredPosts = posts.filter(post => !post.file && post.description);
                 }
                 
                 console.log(`Filtered ${type} posts:`, filteredPosts);
