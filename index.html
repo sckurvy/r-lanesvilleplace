@@ -265,20 +265,25 @@
         <div id="home" class="tab-content active">
             <div class="home-content">
                 <h2>Welcome to r/lanesvilleplace!</h2>
+                <p><strong>What is this place?</strong></p>
+                <p>This is your school's digital scrapbook - a place to share memories, moments, and experiences from your time here. Think of it as a time capsule where everyone can contribute!</p>
                 
                 <p><strong>How to use:</strong></p>
                 <p>• Choose your content type: Videos, Images, or Text posts</p>
                 <p>• Fill in your real name, a title, and description</p>
                 <p>• Upload your content or write your text</p>
+                <p>• Your post will appear with a timestamp for future nostalgia!</p>
                 
                 <p><strong>What can you share?</strong></p>
-                <p>• <strong>Videos:</strong> School events, funny stuff, anything else just not freaky stuff please people.</p>
-                <p>• <strong>Images:</strong> Photos from classes, sports, friends,etc. </p>
+                <p>• <strong>Videos:</strong> School events, funny moments, achievements</p>
+                <p>• <strong>Images:</strong> Photos from classes, sports, friends, campus life (GIFs supported!)</p>
                 <p>• <strong>Text:</strong> Stories, memories, thoughts, jokes, or anything you want to remember</p>
                 
                 <p><strong>Rules:</strong></p>
                 <p>• Use your real name - this is for the school community</p>
-                <p>• Keep content mostly appropriate</p>
+                <p>• Keep content school-appropriate</p>
+                <p>• Be respectful and kind</p>
+                <p>• Have fun and create lasting memories!</p>
             </div>
         </div>
 
@@ -288,7 +293,7 @@
                 <h3 style="margin-bottom: 15px; color: #AF0A0F;">Share a Video</h3>
                 <form id="videoForm" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="videoName">Your Name *</label>
+                        <label for="videoName">Your Real Name *</label>
                         <input type="text" id="videoName" name="name" required>
                     </div>
                     <div class="form-group">
@@ -315,7 +320,7 @@
                 <h3 style="margin-bottom: 15px; color: #AF0A0F;">Share an Image</h3>
                 <form id="imageForm" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="imageName">Your  Name *</label>
+                        <label for="imageName">Your Real Name *</label>
                         <input type="text" id="imageName" name="name" required>
                     </div>
                     <div class="form-group">
@@ -342,15 +347,11 @@
                 <h3 style="margin-bottom: 15px; color: #AF0A0F;">Share a Text Post</h3>
                 <form id="textForm">
                     <div class="form-group">
-                        <label for="textName">Your  Name *</label>
+                        <label for="textName">Your Real Name *</label>
                         <input type="text" id="textName" name="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="textTitle">Title *</label>
-                        <input type="text" id="textTitle" name="caption" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="textContent">Your Text *</label>
+                        <label for="textContent">Your Message *</label>
                         <textarea id="textContent" name="description" placeholder="Share your story, memory, or thoughts..." required style="height: 120px;"></textarea>
                     </div>
                     <button type="submit" class="submit-btn">Post Text</button>
@@ -420,7 +421,7 @@
                 } else if (type === 'images') {
                     mediaHTML = `
                         <div class="post-media">
-                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading="lazy">
+                            <img src="${API_BASE}${post.file}" alt="${post.caption}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjNlbSI+SW1hZ2UgTm90IEZvdW5kPC90ZXh0Pjwvc3ZnPg=='; console.error('Image failed to load:', '${API_BASE}${post.file}');">
                         </div>
                     `;
                 }
@@ -432,7 +433,7 @@
             return `
                 <div class="post">
                     <div class="post-header">
-                        <div class="post-title">${post.caption || 'Untitled'}</div>
+                        ${type !== 'text' ? `<div class="post-title">${post.caption || 'Untitled'}</div>` : ''}
                         <div class="post-meta">
                             <span class="post-name">${post.name}</span>
                             <span class="post-id">No.${post.id}</span>
@@ -450,8 +451,10 @@
         // Load and display posts
         async function loadPosts(type) {
             try {
+                console.log(`Loading posts for ${type}...`);
                 const response = await fetch(`${API_BASE}/api/posts`);
                 const posts = await response.json();
+                console.log('All posts received:', posts);
                 
                 let filteredPosts = [];
                 if (type === 'videos') {
@@ -461,6 +464,8 @@
                 } else if (type === 'text') {
                     filteredPosts = posts.filter(post => !post.file && post.description);
                 }
+                
+                console.log(`Filtered ${type} posts:`, filteredPosts);
                 
                 const container = document.getElementById(`${type}Posts`);
                 
@@ -501,6 +506,11 @@
                 
                 const formData = new FormData(form);
                 
+                // For text posts, set caption to description since we removed title field
+                if (type === 'text') {
+                    formData.set('caption', formData.get('description'));
+                }
+                
                 try {
                     const response = await fetch(`${API_BASE}/api/upload`, {
                         method: 'POST',
@@ -511,7 +521,12 @@
                     
                     if (result.success) {
                         showMessage('Post created successfully!');
+                        // Reset form but keep name
+                        const savedName = loadSavedName();
                         form.reset();
+                        if (savedName) {
+                            form.querySelector('[name="name"]').value = savedName;
+                        }
                         loadPosts(type);
                     } else {
                         showMessage('Error creating post. Please try again.', true);
@@ -523,8 +538,46 @@
             });
         }
 
+        // Save and load names from localStorage
+        function saveName(name) {
+            localStorage.setItem('userName', name);
+        }
+        
+        function loadSavedName() {
+            return localStorage.getItem('userName') || '';
+        }
+        
+        function populateNameFields() {
+            const savedName = loadSavedName();
+            if (savedName) {
+                document.getElementById('videoName').value = savedName;
+                document.getElementById('imageName').value = savedName;
+                document.getElementById('textName').value = savedName;
+            }
+        }
+        
+        // Add event listeners to save names when they change
+        function setupNameSaving() {
+            ['videoName', 'imageName', 'textName'].forEach(id => {
+                const field = document.getElementById(id);
+                field.addEventListener('input', (e) => {
+                    if (e.target.value.trim()) {
+                        saveName(e.target.value);
+                        // Update other name fields
+                        ['videoName', 'imageName', 'textName'].forEach(otherId => {
+                            if (otherId !== id) {
+                                document.getElementById(otherId).value = e.target.value;
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
         // Initialize form handlers
         document.addEventListener('DOMContentLoaded', () => {
+            populateNameFields();
+            setupNameSaving();
             handleFormSubmit('videoForm', 'videos');
             handleFormSubmit('imageForm', 'images');
             handleFormSubmit('textForm', 'text');
