@@ -1,190 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>r/lanesvilleplace</title>
-  <style>
-    body {
-      background-color: #f0f0f0;
-      font-family: monospace;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #ddd;
-      padding: 10px;
-      text-align: center;
-      font-size: 18px;
-      white-space: pre;
-    }
-    nav {
-      background: #bbb;
-      display: flex;
-      justify-content: center;
-      padding: 5px;
-    }
-    nav button {
-      margin: 0 5px;
-      padding: 5px 10px;
-      background: #eee;
-      border: 1px solid #888;
-      cursor: pointer;
-    }
-    section {
-      display: none;
-      padding: 15px;
-    }
-    section.active {
-      display: block;
-    }
-    .post-form {
-      border: 1px solid #aaa;
-      background: #fff;
-      padding: 10px;
-      margin-bottom: 15px;
-    }
-    .post {
-      border: 1px solid #888;
-      background: #fff;
-      margin: 10px 0;
-      padding: 10px;
-    }
-    .caption {
-      font-weight: bold;
-    }
-    .description {
-      font-style: italic;
-      color: #444;
-    }
-    .media {
-      margin-top: 5px;
-      max-width: 100%;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>r/lanesvilleplace</title>
+<style>
+  body {
+    background-color: #f0f0f0;
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background: #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+    color: #4B0082; /* purple-ish header text */
+    white-space: pre;
+  }
+  nav {
+    background: #bbb;
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+  }
+  nav button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background: #eee;
+    border: 1px solid #4B0082; /* purple border */
+    cursor: pointer;
+  }
+  section {
+    display: none;
+    padding: 15px;
+  }
+  section.active {
+    display: block;
+  }
+  .post-form {
+    border: 2px solid #800080; /* purple border */
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  .post {
+    border: 2px solid #800080; /* purple border */
+    background: #fff;
+    margin: 10px 0;
+    padding: 10px;
+  }
+  .caption {
+    font-weight: bold;
+  }
+  .description {
+    font-style: italic;
+    color: #444;
+  }
+  .media {
+    margin-top: 5px;
+    max-width: 100%;
+  }
+  .board {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .board .post {
+    width: 300px;
+  }
+</style>
 </head>
 <body>
-  <header>
-╔═╦╗╔╦╗╔═╦═╦╦╦╦╗╔═╗
-║╚╣║║║╚╣╚╣╔╣╔╣║╚╣═╣
-╠╗║╚╝║║╠╗║╚╣║║║║║═╣
-╚═╩══╩═╩═╩═╩╝╚╩═╩═╝
-  </header>
 
-  <nav>
-    <button onclick="showTab('home')">Home</button>
-    <button onclick="showTab('videos')">Videos</button>
-    <button onclick="showTab('texts')">Texts</button>
-    <button onclick="showTab('images')">Images</button>
-  </nav>
+<header>
+                       ,--,                                                                                                                                                 
+                    ,---.'|                                                                                             ,-.----.                                            
+                ,--,|   | :                                                                    ,--,    ,--,             \    /  \    ,--,                                   
+               / .`|:   : |                                                           ,--,   ,--.'|  ,--.'|             |   :    \ ,--.'|                                   
+  __  ,-.     /' / ;|   ' :                     ,---,                               ,--.'|   |  | :  |  | :             |   |  .\ :|  | :                                   
+,' ,'/ /|    /  / .';   ; '                 ,-+-. /  |            .--.--.      .---.|  |,    :  : '  :  : '             .   :  |: |:  : '                                   
+'  | |' |   /  / ./ '   | |__   ,--.--.    ,--.'|'   |   ,---.   /  /    '   /.  ./|`--'_    |  ' |  |  ' |      ,---.  |   |   \ :|  ' |     ,--.--.     ,---.     ,---.   
+|  |   ,'  / ./  /  |   | :.'| /       \  |   |  ,"' |  /     \ |  :  /`./ .-' . ' |,' ,'|   '  | |  '  | |     /     \ |   : .   /'  | |    /       \   /     \   /     \  
+'  :  /   /  /  /   '   :    ;.--.  .-. | |   | /  | | /    /  ||  :  ;_  /___/ \: |'  | |   |  | :  |  | :    /    /  |;   | |`-' |  | :   .--.  .-. | /    / '  /    /  | 
+|  | '   /  /  /    |   |  ./  \__\/: . . |   | |  | |.    ' / | \  \    `.   \  ' .|  | :   '  : |__'  : |__ .    ' / ||   | ;    '  : |__  \__\/: . ..    ' /  .    ' / | 
+;  : |  ;  /  /     ;   : ;    ," .--.; | |   | |  |/ '   ;   /|  `----.   \   \   ''  : |__ |  | '.'|  | '.'|'   ;   /|:   ' |    |  | '.'| ," .--.; |'   ; :__ '   ;   /| 
+|  , ;./__;  /      |   ,/    /  /  ,.  | |   | |--'  '   |  / | /  /`--'  /\   \   |  | '.'|;  :    ;  :    ;'   |  / |:   : :    ;  :    ;/  /  ,.  |'   | '.'|'   |  / | 
+ ---' |   : /       '---'    ;  :   .'   \|   |/      |   :    |'--'.     /  \   \ |;  :    ;|  ,   /|  ,   / |   :    ||   | :    |  ,   /;  :   .'   \   :    :|   :    | 
+      ;   |/                 |  ,     .-./'---'        \   \  /   `--'---'    '---" |  ,   /  ---`-'  ---`-'   \   \  / `---'.|     ---`-' |  ,     .-./\   \  /  \   \  /  
+      `---'                   `--`---'                  `----'                       ---`-'                     `----'    `---`             `--`---'     `----'    `----'   
+                                                                                                                                                                            
+</header>
 
-  <section id="home" class="active">
-    <h2>Welcome to r/lanesvilleplace</h2>
-    <p>Post videos, texts, or images. Short captions and descriptions only.</p>
-    <p>Slurs are blocked automatically. Curse words are fine.</p>
-  </section>
+<nav>
+  <button onclick="showTab('videos')">Videos</button>
+  <button onclick="showTab('texts')">Texts</button>
+  <button onclick="showTab('images')">Images</button>
+</nav>
 
-  <section id="videos">
-    <h2>Videos</h2>
-    <form class="post-form" onsubmit="return submitPost(event, 'videos')">
-      <input type="text" name="name" placeholder="First Name Here" required><br>
-      <input type="text" name="caption" placeholder="Caption" required><br>
-      <input type="text" name="description" placeholder="Short description"><br>
-      <input type="file" name="file" accept="video/*"><br>
-      <button type="submit">Post</button>
-    </form>
-    <div id="videos-feed"></div>
-  </section>
+<section id="videos" class="active">
+  <h2>Videos</h2>
+  <form class="post-form" onsubmit="return submitPost(event, 'videos')">
+    <input type="text" name="name" placeholder="First Name Here" required><br>
+    <input type="text" name="caption" placeholder="Caption" required><br>
+    <input type="text" name="description" placeholder="Short description"><br>
+    <input type="file" name="file" accept="video/*"><br>
+    <button type="submit">Post</button>
+  </form>
+  <div class="board" id="videos-feed"></div>
+</section>
 
-  <section id="texts">
-    <h2>Texts</h2>
-    <form class="post-form" onsubmit="return submitPost(event, 'texts')">
-      <input type="text" name="name" placeholder="First Name Here" required><br>
-      <input type="text" name="caption" placeholder="Caption" required><br>
-      <input type="text" name="description" placeholder="Short description"><br>
-      <button type="submit">Post</button>
-    </form>
-    <div id="texts-feed"></div>
-  </section>
+<section id="texts">
+  <h2>Texts</h2>
+  <form class="post-form" onsubmit="return submitPost(event, 'texts')">
+    <input type="text" name="name" placeholder="First Name Here" required><br>
+    <input type="text" name="caption" placeholder="Caption" required><br>
+    <input type="text" name="description" placeholder="Short description"><br>
+    <button type="submit">Post</button>
+  </form>
+  <div class="board" id="texts-feed"></div>
+</section>
 
-  <section id="images">
-    <h2>Images</h2>
-    <form class="post-form" onsubmit="return submitPost(event, 'images')">
-      <input type="text" name="name" placeholder="First Name Here" required><br>
-      <input type="text" name="caption" placeholder="Caption" required><br>
-      <input type="text" name="description" placeholder="Short description"><br>
-      <input type="file" name="file" accept="image/*"><br>
-      <button type="submit">Post</button>
-    </form>
-    <div id="images-feed"></div>
-  </section>
+<section id="images">
+  <h2>Images</h2>
+  <form class="post-form" onsubmit="return submitPost(event, 'images')">
+    <input type="text" name="name" placeholder="First Name Here" required><br>
+    <input type="text" name="caption" placeholder="Caption" required><br>
+    <input type="text" name="description" placeholder="Short description"><br>
+    <input type="file" name="file" accept="image/*,image/gif"><br>
+    <button type="submit">Post</button>
+  </form>
+  <div class="board" id="images-feed"></div>
+</section>
 
-  <script>
-    const backend = "https://r-lanesvilleplace-backend.onrender.com";
+<script>
+const backend = "https://r-lanesvilleplace-backend.onrender.com";
 
-    function showTab(tab) {
-      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-      document.getElementById(tab).classList.add("active");
-      loadPosts();
-    }
+function showTab(tab) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+  loadPosts();
+}
 
-    async function loadPosts() {
-      const res = await fetch(`${backend}/api/posts`);
-      const posts = await res.json();
+async function loadPosts() {
+  const res = await fetch(`${backend}/api/posts`);
+  const posts = await res.json();
 
-      ["videos", "texts", "images"].forEach(tab => {
-        const feed = document.getElementById(tab + "-feed");
-        if (!feed) return;
-        feed.innerHTML = "";
+  ["videos","texts","images"].forEach(tab => {
+    const feed = document.getElementById(tab + "-feed");
+    if (!feed) return;
+    feed.innerHTML = "";
 
-        posts.forEach(p => {
-          // crude categorization: if file has video, goes to videos; if image, to images; else texts
-          let type = "texts";
-          if (p.file && p.file.match(/\.(mp4|webm|mov)$/)) type = "videos";
-          else if (p.file && p.file.match(/\.(jpg|jpeg|png|gif)$/)) type = "images";
+    posts.forEach(p => {
+      let type = "texts";
+      if (p.file && p.file.match(/\.(mp4|webm|mov)$/)) type = "videos";
+      else if (p.file && p.file.match(/\.(jpg|jpeg|png|gif)$/)) type = "images";
+      if (type !== tab) return;
 
-          if (type !== tab) return;
-
-          const div = document.createElement("div");
-          div.className = "post";
-          div.innerHTML = `
-            <div class="caption">${p.caption}</div>
-            <div class="description">${p.description}</div>
-            <div>Posted by: ${p.name}</div>
-          `;
-
-          if (p.file) {
-            if (type === "videos") {
-              div.innerHTML += `<video class="media" controls src="${backend}${p.file}"></video>`;
-            } else if (type === "images") {
-              div.innerHTML += `<img class="media" src="${backend}${p.file}" alt="image post">`;
-            }
-          }
-          feed.prepend(div);
-        });
-      });
-    }
-
-    async function submitPost(e, tab) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-
-      const res = await fetch(`${backend}/api/upload`, {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        alert("Posted!");
-        form.reset();
-        loadPosts();
-      } else {
-        alert("Error posting.");
+      const div = document.createElement("div");
+      div.className = "post";
+      div.innerHTML = `
+        <div class="caption">${p.caption}</div>
+        <div class="description">${p.description}</div>
+        <div>Posted by: ${p.name}</div>
+      `;
+      if (p.file) {
+        if (type === "videos") div.innerHTML += `<video class="media" controls src="${backend}${p.file}"></video>`;
+        else if (type === "images") div.innerHTML += `<img class="media" src="${backend}${p.file}" alt="image post">`;
       }
-    }
+      feed.prepend(div);
+    });
+  });
+}
 
+async function submitPost(e, tab) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const res = await fetch(`${backend}/api/upload`, { method:"POST", body:formData });
+  const data = await res.json();
+  if (data.success) {
+    form.reset();
     loadPosts();
-  </script>
+  } else alert("Error posting.");
+}
+
+loadPosts();
+</script>
+
 </body>
 </html>
