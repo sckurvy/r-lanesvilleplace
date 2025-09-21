@@ -456,13 +456,36 @@
                 const posts = await response.json();
                 console.log('All posts received:', posts);
                 
+                // Log each post's file info
+                posts.forEach(post => {
+                    if (post.file) {
+                        console.log(`Post ${post.id} has file: ${post.file}`);
+                    } else {
+                        console.log(`Post ${post.id} has no file, description: ${post.description ? 'yes' : 'no'}`);
+                    }
+                });
+                
                 let filteredPosts = [];
                 if (type === 'videos') {
-                    filteredPosts = posts.filter(post => post.file && post.file.match(/\.(mp4|webm|ogg|avi|mov)$/i));
+                    filteredPosts = posts.filter(post => {
+                        if (!post.file) return false;
+                        const isVideo = post.file.match(/\.(mp4|webm|ogg|avi|mov)$/i);
+                        console.log(`Post ${post.id}: ${post.file} is video: ${!!isVideo}`);
+                        return isVideo;
+                    });
                 } else if (type === 'images') {
-                    filteredPosts = posts.filter(post => post.file && post.file.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i));
+                    filteredPosts = posts.filter(post => {
+                        if (!post.file) return false;
+                        const isImage = post.file.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i);
+                        console.log(`Post ${post.id}: ${post.file} is image: ${!!isImage}`);
+                        return isImage;
+                    });
                 } else if (type === 'text') {
-                    filteredPosts = posts.filter(post => !post.file && post.description);
+                    filteredPosts = posts.filter(post => {
+                        const isText = !post.file && post.description;
+                        console.log(`Post ${post.id}: is text post: ${isText}`);
+                        return isText;
+                    });
                 }
                 
                 console.log(`Filtered ${type} posts:`, filteredPosts);
@@ -470,7 +493,7 @@
                 const container = document.getElementById(`${type}Posts`);
                 
                 if (filteredPosts.length === 0) {
-                    container.innerHTML = '<div class="no-posts">No posts yet. Be the first to share!</div>';
+                    container.innerHTML = `<div class="no-posts">No ${type} posts yet. Be the first to share!</div>`;
                 } else {
                     // Sort by newest first
                     filteredPosts.sort((a, b) => b.id - a.id);
